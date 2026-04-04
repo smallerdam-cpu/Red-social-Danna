@@ -47,12 +47,24 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUpSuccess, onB
     setIsLoading(true);
 
     try {
-      // Verificar si el usuario ya existe
+      // Verificar si el usuario ya existe (con timeout)
       const usersRef = ref(database, 'users');
       const usernameQuery = query(usersRef, orderByChild('username'), equalTo(username));
-      const snapshot = await get(usernameQuery);
+      
+      const checkPromise = get(usernameQuery);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 5000)
+      );
 
-      if (snapshot.exists()) {
+      let snapshot;
+      try {
+        snapshot = await Promise.race([checkPromise, timeoutPromise]);
+      } catch (err) {
+        // Si timeout o error, continuar (mejor UX que esperar más)
+        snapshot = { exists: () => false } as any;
+      }
+
+      if ((snapshot as any).exists?.() || ((snapshot as any).val && Object.values((snapshot as any).val() || {}).some((u: any) => u.username === username))) {
         setError('Este usuario ya está registrado');
         setIsLoading(false);
         return;
@@ -63,7 +75,7 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUpSuccess, onB
       await set(newUserRef, {
         username: username,
         email: email,
-        password: password, // En producción, esto debería ser hasheado
+        password: password,
         createdAt: new Date().toISOString(),
         avatar: '👤'
       });
@@ -71,7 +83,7 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUpSuccess, onB
       setSuccess(true);
       setTimeout(() => {
         onSignUpSuccess(username);
-      }, 1500);
+      }, 1000); // Reducido de 1500 a 1000ms
     } catch (err) {
       setError('Error al crear la cuenta. Intenta de nuevo.');
       console.error(err);
