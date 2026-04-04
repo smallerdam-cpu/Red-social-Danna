@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.animate-fade-out {
+  animation: fadeOut 1s ease-out forwards;
+  animation-delay: 9s;
+}
