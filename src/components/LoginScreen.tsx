@@ -24,35 +24,47 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onCreateAccou
     setIsLoading(true);
 
     try {
-      // Intentar buscar usuario en Firebase
+      // Chequear demo primero (instantáneo)
+      if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
+        onLogin(username);
+        return;
+      }
+
+      // Si no es demo, consultar Firebase
       const usersRef = ref(database, 'users');
       const usernameQuery = query(usersRef, orderByChild('username'), equalTo(username));
-      const snapshot = await get(usernameQuery);
+      
+      // Timeout de 5 segundos para Firebase
+      const firebasePromise = get(usernameQuery);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Firebase timeout')), 5000)
+      );
 
-      if (snapshot.exists()) {
-        // Usuario existe en Firebase, validar contraseña
-        const userData = Object.values(snapshot.val())[0] as any;
+      let snapshot;
+      try {
+        snapshot = await Promise.race([firebasePromise, timeoutPromise]);
+      } catch (err) {
+        setError('Error de conexión. Intenta de nuevo.');
+        setPassword('');
+        setIsLoading(false);
+        return;
+      }
+
+      if ((snapshot as any).exists?.()) {
+        const userData = Object.values((snapshot as any).val())[0] as any;
         if (userData.password === password) {
           onLogin(username);
         } else {
           setError('Usuario o contraseña incorrectos');
           setPassword('');
         }
-      } else if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
-        // Respaldo: permitir demo con usuario hardcodeado
-        onLogin(username);
       } else {
         setError('Usuario o contraseña incorrectos');
         setPassword('');
       }
     } catch (err) {
-      // Si hay error de Firebase, permitir demo
-      if (username === DEMO_USERNAME && password === DEMO_PASSWORD) {
-        onLogin(username);
-      } else {
-        setError('Error al conectar con el servidor. Intenta de nuevo.');
-        setPassword('');
-      }
+      setError('Error al conectar. Intenta de nuevo.');
+      setPassword('');
     } finally {
       setIsLoading(false);
     }
