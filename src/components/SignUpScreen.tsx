@@ -47,27 +47,27 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUpSuccess, onB
     setIsLoading(true);
 
     try {
-      // Verificar si el usuario ya existe (con timeout)
+      // Verificar si el usuario ya existe (con timeout agresivo)
       const usersRef = ref(database, 'users');
       const usernameQuery = query(usersRef, orderByChild('username'), equalTo(username));
       
       const checkPromise = get(usernameQuery);
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), 5000)
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 3000)
       );
 
       let snapshot;
       try {
         snapshot = await Promise.race([checkPromise, timeoutPromise]);
+        
+        if ((snapshot as any).exists?.() || ((snapshot as any).val && Object.values((snapshot as any).val() || {}).some((u: any) => u.username === username))) {
+          setError('Este usuario ya está registrado');
+          setIsLoading(false);
+          return;
+        }
       } catch (err) {
-        // Si timeout o error, continuar (mejor UX que esperar más)
-        snapshot = { exists: () => false } as any;
-      }
-
-      if ((snapshot as any).exists?.() || ((snapshot as any).val && Object.values((snapshot as any).val() || {}).some((u: any) => u.username === username))) {
-        setError('Este usuario ya está registrado');
-        setIsLoading(false);
-        return;
+        // Si timeout, continuar de todas formas (mejor UX)
+        // El servidor rechazará si el usuario ya existe
       }
 
       // Crear nuevo usuario en Firebase
@@ -83,7 +83,7 @@ export const SignUpScreen: React.FC<SignUpScreenProps> = ({ onSignUpSuccess, onB
       setSuccess(true);
       setTimeout(() => {
         onSignUpSuccess(username);
-      }, 1000); // Reducido de 1500 a 1000ms
+      }, 500); // Auto-login rápido
     } catch (err) {
       setError('Error al crear la cuenta. Intenta de nuevo.');
       console.error(err);
