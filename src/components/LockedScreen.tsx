@@ -66,7 +66,7 @@ export const LockedScreen: React.FC<LockedScreenProps> = ({ onBack }) => {
           className="bg-gradient-to-br from-pink-500/20 to-purple-500/20 backdrop-blur-xl rounded-3xl p-8 sm:p-12 border border-pink-500/40 mb-8 shadow-2xl"
           animate={{ 
             boxShadow: [
-              '0 0 20px rgba(236, 72, 153, 0.2)',
+              '0 0 20px rgba(236, 72, 72, 0.2)',
               '0 0 60px rgba(236, 72, 153, 0.4)',
               '0 0 20px rgba(236, 72, 153, 0.2)'
             ]

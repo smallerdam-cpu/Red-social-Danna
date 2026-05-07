@@ -88,9 +88,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-black via-purple-900/10 to-black overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-pink-500 scrollbar-track-black/20 flex flex-col">
       {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl" />
       </div>
@@ -163,7 +163,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 min-h-[calc(100vh-200px)]">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-1 w-full">
         <AnimatePresence mode="wait">
           {activeTab === 'inicio' ? (
             // Inicio Tab
