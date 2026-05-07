@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GalaxyScreen } from './GalaxyScreen';
+import { MiniGamesScreen } from './MiniGamesScreen';
 
 interface DashboardProps {
   username: string;
@@ -9,7 +10,7 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
   const [activeTab, setActiveTab] = useState<'inicio' | 'regalos'>('inicio');
-  const [activeGift, setActiveGift] = useState<'galaxy' | null>(null);
+  const [activeGift, setActiveGift] = useState<'galaxy' | 'mini-games' | null>(null);
   const [testDate, setTestDate] = useState<Date | null>(null);
   const [showDevTools, setShowDevTools] = useState(false);
 
@@ -54,6 +55,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
       bgColor: 'bg-purple-500/10 hover:bg-purple-500/20'
     },
     {
+      id: 'mini-games',
+      title: '🎮 Mini Juegos',
+      description: 'Juegos interactivos divertidos para ti',
+      icon: '🕹️',
+      color: 'from-yellow-500 to-orange-500',
+      bgColor: 'bg-yellow-500/10 hover:bg-yellow-500/20'
+    },
+    {
       id: 'coming-soon',
       title: '💝 Más Sorpresas',
       description: 'Próximas interacciones especiales para ti',
@@ -79,6 +88,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
         </button>
       </div>
     );
+  }
+
+  // Si está viendo los mini juegos
+  if (activeGift === 'mini-games') {
+    return <MiniGamesScreen onBack={() => setActiveGift(null)} />;
   }
 
   return (
@@ -231,8 +245,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
                     transition={{ delay: 0.1 * (index + 1) }}
                     onClick={() => {
                       if (gift.disabled) return;
-                      if (gift.id === 'galaxy') {
-                        setActiveGift('galaxy');
+                      if (gift.id === 'galaxy' || gift.id === 'mini-games') {
+                        setActiveGift(gift.id as 'galaxy' | 'mini-games');
                       }
                     }}
                     className={`group cursor-pointer relative overflow-hidden rounded-2xl transition-all duration-300
