@@ -1,17 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LoginScreen } from './components/LoginScreen';
 import { SignUpScreen } from './components/SignUpScreen';
 import { Dashboard } from './components/Dashboard';
 import { AnimatePresence } from 'framer-motion';
 
+
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem('galaxia_user');
+  });
+  const [currentUser, setCurrentUser] = useState(() => {
+    return localStorage.getItem('galaxia_user') || '';
+  });
   const [showSignUp, setShowSignUp] = useState(false);
 
   const handleLogin = (username: string) => {
     setCurrentUser(username);
     setIsAuthenticated(true);
+    localStorage.setItem('galaxia_user', username);
   };
 
   const handleSignUpSuccess = (username: string) => {
@@ -22,6 +28,7 @@ function App() {
   const handleLogout = () => {
     setIsAuthenticated(false);
     setCurrentUser('');
+    localStorage.removeItem('galaxia_user');
   };
 
   return (

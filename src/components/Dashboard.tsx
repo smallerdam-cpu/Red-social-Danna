@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { GalaxyScreen } from './GalaxyScreen';
 
 interface DashboardProps {
@@ -8,8 +8,8 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
-  const [activeScreen, setActiveScreen] = useState<'menu' | 'galaxy' | 'gallery'>('menu');
-  const [showBlockedMessage, setShowBlockedMessage] = useState(false);
+  const [activeTab, setActiveTab] = useState<'inicio' | 'regalos'>('inicio');
+  const [activeGift, setActiveGift] = useState<'galaxy' | null>(null);
   const [testDate, setTestDate] = useState<Date | null>(null);
   const [showDevTools, setShowDevTools] = useState(false);
 
@@ -35,15 +35,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
-  const handleGalaxyClick = () => {
-    if (!todayIsSpecial) {
-      setShowBlockedMessage(true);
-      setTimeout(() => setShowBlockedMessage(false), 4000);
-    } else {
-      setActiveScreen('galaxy');
-    }
-  };
-
   const handleSetTestDate = (dateString: string) => {
     if (dateString) {
       setTestDate(new Date(dateString));
@@ -52,32 +43,34 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
     }
   };
 
-  const menuItems = [
+  // Regalos disponibles
+  const gifts = [
     {
       id: 'galaxy',
       title: '🌌 Mi Galaxia',
-      description: 'Universo 3D interactivo',
+      description: 'Un universo 3D interactivo creado especialmente para ti',
       icon: '✨',
       color: 'from-purple-500 to-pink-500',
       bgColor: 'bg-purple-500/10 hover:bg-purple-500/20'
     },
     {
-      id: 'gallery',
-      title: '📱 Galería',
-      description: 'Mis fotos y momentos',
-      icon: '🖼️',
+      id: 'coming-soon',
+      title: '💝 Más Sorpresas',
+      description: 'Próximas interacciones especiales para ti',
+      icon: '🎁',
       color: 'from-blue-500 to-cyan-500',
       bgColor: 'bg-blue-500/10 hover:bg-blue-500/20',
       disabled: true
     }
   ];
 
-  if (activeScreen === 'galaxy') {
+  // Si está viendo la galaxia
+  if (activeGift === 'galaxy') {
     return (
       <div className="relative">
         <GalaxyScreen />
         <button
-          onClick={() => setActiveScreen('menu')}
+          onClick={() => setActiveGift(null)}
           className="fixed top-4 sm:top-6 left-4 sm:left-6 z-40 bg-black/50 backdrop-blur-md px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg
             text-pink-300 hover:text-pink-200 text-xs sm:text-sm font-semibold border border-pink-500/30
             hover:border-pink-500/60 transition-all duration-300 touch-none active:scale-95 min-h-[44px] sm:min-h-auto"
@@ -132,165 +125,199 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="w-full sm:w-auto px-4 sm:px-6 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200
-              border border-red-500/30 hover:border-red-500/60 transition-all duration-300 text-xs sm:text-sm font-semibold touch-none"
+              border border-red-500/30 hover:border-red-500/60 transition-all duration-300 text-xs sm:text-sm font-semibold touch-none min-h-[44px] sm:min-h-auto"
           >
             Cerrar Sesión
           </motion.button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-6 sm:mb-8"
-        >
-          <h2 className="text-2xl sm:text-4xl font-bold text-white mb-2">Mi Espacio Personal</h2>
-          <p className="text-xs sm:text-base text-gray-400">Accede a tus experiencias interactivas personalizadas</p>
-        </motion.div>
+      {/* Tabs Navigation */}
+      <div className="relative z-10 border-b border-white/10 backdrop-blur-md sticky top-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex gap-2 sm:gap-4 overflow-x-auto">
+            {[
+              { id: 'inicio', label: '🏠 Inicio' },
+              { id: 'regalos', label: '🎁 Tus Regalos' }
+            ].map((tab) => (
+              <motion.button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as 'inicio' | 'regalos')}
+                className={`px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold transition-all duration-300 whitespace-nowrap
+                  ${activeTab === tab.id
+                    ? 'text-pink-300 border-b-2 border-pink-500'
+                    : 'text-gray-400 hover:text-gray-300 border-b-2 border-transparent'
+                  } min-h-[44px] sm:min-h-auto flex items-center`}
+              >
+                {tab.label}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      </div>
 
-        {/* Menu Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {menuItems.map((item, index) => (
+      {/* Main Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 min-h-[calc(100vh-200px)]">
+        <AnimatePresence mode="wait">
+          {activeTab === 'inicio' ? (
+            // Inicio Tab
             <motion.div
-              key={item.id}
+              key="inicio"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * (index + 1) }}
-              onClick={() => {
-                if (item.disabled) return;
-                if (item.id === 'galaxy') {
-                  handleGalaxyClick();
-                } else {
-                  setActiveScreen(item.id as 'galaxy' | 'gallery');
-                }
-              }}
-              className={`group cursor-pointer relative overflow-hidden rounded-2xl transition-all duration-300
-                ${!item.disabled ? 'hover:shadow-2xl active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
             >
-              {/* Gradient Border Effect */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${item.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+              <h2 className="text-2xl sm:text-4xl font-bold text-white mb-2">Bienvenida</h2>
+              <p className="text-gray-400 text-sm sm:text-base mb-8">A tu espacio personal especial</p>
 
-              {/* Card */}
-              <div className={`relative backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-white/10 
-                ${item.bgColor} transition-all duration-300 h-full flex flex-col justify-between`}
-              >
-                {/* Top - Icon */}
-                <div className="text-4xl sm:text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                  {item.icon}
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                {/* Próximo Cumpleaños */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-2xl p-6 sm:p-8"
+                >
+                  <div className="text-4xl sm:text-5xl mb-4">🎂</div>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Tu Próximo Cumpleaños</h3>
+                  <p className="text-gray-400 text-sm mb-4">Faltan</p>
+                  <div className="text-4xl sm:text-5xl font-black bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                    {daysUntilBirthday()}
+                  </div>
+                  <p className="text-pink-300 text-sm font-semibold mt-2">días para que llegue tu día especial ✨</p>
+                </motion.div>
 
-                {/* Middle - Text */}
-                <div className="flex-1">
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2 group-hover:text-pink-300 transition-colors duration-300">
-                    {item.title}
-                  </h3>
-                  {item.id === 'galaxy' && !todayIsSpecial ? (
-                    <div className="text-center py-2">
-                      <p className="text-3xl sm:text-5xl font-black bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-                        {daysUntilBirthday()}
-                      </p>
-                      <p className="text-pink-300 text-xs sm:text-sm font-semibold mt-1">días</p>
-                    </div>
-                  ) : (
-                    <p className="text-gray-400 text-xs sm:text-sm">{item.description}</p>
-                  )}
-                </div>
-
-                {/* Bottom - CTA */}
-                <div className="flex items-center gap-2 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/10">
-                  <span className="text-xs sm:text-sm font-semibold text-pink-300 group-hover:text-pink-200">
-                    {item.disabled ? 'Próximamente' : 'Ingresar'}
-                  </span>
-                  {!item.disabled && (
-                    <motion.span
-                      className="text-lg"
-                      animate={{ x: [0, 4, 0] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      →
-                    </motion.span>
-                  )}
-                </div>
+                {/* Quick Access */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-2xl p-6 sm:p-8"
+                >
+                  <div className="text-4xl sm:text-5xl mb-4">🎁</div>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Tus Regalos</h3>
+                  <p className="text-gray-400 text-sm mb-4">Acceso a interacciones especiales</p>
+                  <motion.button
+                    onClick={() => setActiveTab('regalos')}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 hover:text-blue-200 
+                      border border-blue-500/30 transition-all duration-300 text-xs sm:text-sm font-semibold touch-none min-h-[44px] sm:min-h-auto"
+                  >
+                    Explorar Regalos →
+                  </motion.button>
+                </motion.div>
               </div>
             </motion.div>
-          ))}
-        </div>
-
-        {/* Blocked Message Toast */}
-        {showBlockedMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50"
-          >
-            <div className="bg-gradient-to-r from-pink-500/90 to-purple-500/90 backdrop-blur-xl rounded-2xl px-6 sm:px-8 py-4 sm:py-5 border border-pink-400/50 shadow-2xl max-w-md">
-              <p className="text-white text-center font-semibold text-sm sm:text-base">
-                🔐 Este apartado estará disponible el <span className="text-yellow-200">9 de Abril</span>
-              </p>
-              <p className="text-white/80 text-center text-xs sm:text-sm mt-2">
-                ¡Una sorpresa especial te espera ese día! 🎁✨
-              </p>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Dev Tools Button - hidden in corner */}
-        <button
-          onClick={() => setShowDevTools(!showDevTools)}
-          className="fixed bottom-4 right-4 w-8 h-8 rounded-full bg-black/30 hover:bg-black/50 text-white/30 hover:text-white/60 text-xs flex items-center justify-center transition-all"
-          title="Dev Tools"
-        >
-          ⚙️
-        </button>
-
-        {/* Dev Tools Panel */}
-        {showDevTools && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="fixed bottom-16 right-4 z-40 bg-black/90 backdrop-blur-xl border border-purple-500/50 rounded-xl p-4 min-w-64"
-          >
-            <p className="text-white font-bold text-sm mb-3">🛠️ Dev Tools</p>
-            <p className="text-gray-300 text-xs mb-2">Cambiar fecha de prueba:</p>
-            <input
-              type="date"
-              defaultValue={testDate?.toISOString().split('T')[0]}
-              onChange={(e) => handleSetTestDate(e.target.value)}
-              className="w-full px-2 py-1 rounded text-sm bg-white/10 border border-purple-500/30 text-white mb-2"
-            />
-            <button
-              onClick={() => {
-                setTestDate(null);
-              }}
-              className="w-full px-2 py-1 rounded text-xs bg-purple-500/30 hover:bg-purple-500/50 text-purple-200 transition-all"
+          ) : (
+            // Regalos Tab
+            <motion.div
+              key="regalos"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
             >
-              Restaurar fecha actual
-            </button>
-            <p className="text-gray-400 text-xs mt-3">
-              Fecha: {(testDate || new Date()).toLocaleDateString('es-ES')}
-            </p>
-            {todayIsSpecial && (
-              <p className="text-green-400 text-xs mt-2 font-semibold">✓ ¡Es el cumpleaños!</p>
-            )}
-          </motion.div>
-        )}
+              <h2 className="text-2xl sm:text-4xl font-bold text-white mb-2">Tus Regalos Especiales</h2>
+              <p className="text-gray-400 text-sm sm:text-base mb-8">Interacciones creadas especialmente para ti</p>
 
-        {/* Footer Info */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {gifts.map((gift, index) => (
+                  <motion.div
+                    key={gift.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * (index + 1) }}
+                    onClick={() => {
+                      if (gift.disabled) return;
+                      if (gift.id === 'galaxy') {
+                        setActiveGift('galaxy');
+                      }
+                    }}
+                    className={`group cursor-pointer relative overflow-hidden rounded-2xl transition-all duration-300
+                      ${!gift.disabled ? 'hover:shadow-2xl active:scale-95' : 'opacity-50 cursor-not-allowed'}`}
+                  >
+                    {/* Gradient Border Effect */}
+                    <div className={`absolute inset-0 bg-gradient-to-r ${gift.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+
+                    {/* Card */}
+                    <div className={`relative backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-white/10 
+                      ${gift.bgColor} transition-all duration-300 h-full flex flex-col justify-between min-h-[280px]`}
+                    >
+                      {/* Top - Icon */}
+                      <div className="text-5xl sm:text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                        {gift.icon}
+                      </div>
+
+                      {/* Middle - Text */}
+                      <div className="flex-1">
+                        <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-pink-300 transition-colors duration-300">
+                          {gift.title}
+                        </h3>
+                        <p className="text-gray-400 text-xs sm:text-sm">{gift.description}</p>
+                      </div>
+
+                      {/* Bottom - CTA */}
+                      <div className="flex items-center gap-2 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/10">
+                        <span className="text-xs sm:text-sm font-semibold text-pink-300 group-hover:text-pink-200">
+                          {gift.disabled ? 'Próximamente' : 'Abrir'}
+                        </span>
+                        {!gift.disabled && (
+                          <motion.span
+                            className="text-lg"
+                            animate={{ x: [0, 4, 0] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          >
+                            →
+                          </motion.span>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Dev Tools Button - hidden in corner */}
+      <button
+        onClick={() => setShowDevTools(!showDevTools)}
+        className="fixed bottom-4 right-4 w-8 h-8 rounded-full bg-black/30 hover:bg-black/50 text-white/30 hover:text-white/60 text-xs flex items-center justify-center transition-all"
+        title="Dev Tools"
+      >
+        ⚙️
+      </button>
+
+      {/* Dev Tools Panel */}
+      {showDevTools && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-12 sm:mt-16 p-4 sm:p-6 rounded-xl bg-white/5 border border-white/10 text-center"
+          exit={{ opacity: 0, y: 20 }}
+          className="fixed bottom-16 right-4 bg-black/80 backdrop-blur-md border border-pink-500/30 rounded-lg p-4 z-40 min-w-[250px]"
         >
-          <p className="text-gray-400 text-xs sm:text-sm">
-            🚀 Pronto: Más experiencias interactivas personalizadas para ti
-          </p>
+          <h4 className="text-pink-300 font-bold text-sm mb-3">Dev Tools</h4>
+          <div className="space-y-3">
+            <div>
+              <label className="text-gray-400 text-xs block mb-1">Cambiar Fecha (test)</label>
+              <input
+                type="date"
+                onChange={(e) => handleSetTestDate(e.target.value)}
+                className="w-full bg-black/50 border border-pink-500/30 rounded px-2 py-1 text-xs text-pink-300"
+              />
+            </div>
+            <button
+              onClick={() => handleSetTestDate('')}
+              className="w-full px-2 py-1 bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 text-xs rounded transition-all"
+            >
+              Resetear fecha
+            </button>
+          </div>
         </motion.div>
-      </div>
+      )}
     </div>
   );
 };
