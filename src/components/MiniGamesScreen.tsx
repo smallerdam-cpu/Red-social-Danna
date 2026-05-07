@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MiniGamesScreenProps {
@@ -110,6 +110,15 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onBack }) => {
   const [matched, setMatched] = useState(0);
   const [gameWon, setGameWon] = useState(false);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
+  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     // Initialize game
@@ -156,29 +165,29 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onBack }) => {
 
   if (gameWon) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-gradient-to-br from-black via-purple-900/10 to-black flex items-center justify-center p-4 z-50 overflow-y-auto">
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="text-center"
+          className="text-center my-auto"
         >
-          <div className="text-6xl mb-4">🎉</div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">¡Ganaste!</h2>
+          <div className="text-5xl sm:text-6xl mb-4">🎉</div>
+          <h2 className="text-2xl sm:text-4xl font-bold text-white mb-2">¡Ganaste!</h2>
           <p className="text-gray-400 text-sm sm:text-base mb-6">Completado en {moves} movimientos</p>
           <div className="flex gap-4 justify-center flex-col sm:flex-row">
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-3 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 
-                border border-blue-500/30 transition-all duration-300 text-sm font-semibold min-h-[44px]"
+              className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 
+                border border-blue-500/30 transition-all duration-300 text-xs sm:text-sm font-semibold min-h-[44px]"
             >
               Jugar de Nuevo
             </button>
             <button
               onClick={onBack}
-              className="px-6 py-3 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 text-pink-300
-                border border-pink-500/30 transition-all duration-300 text-sm font-semibold min-h-[44px]"
+              className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 text-pink-300
+                border border-pink-500/30 transition-all duration-300 text-xs sm:text-sm font-semibold min-h-[44px]"
             >
-              Volver a Mini Juegos
+              Volver
             </button>
           </div>
         </motion.div>
@@ -187,38 +196,39 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black">
+    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black overflow-y-auto pb-8">
       {/* Header */}
       <div className="relative z-10 border-b border-white/10 backdrop-blur-md sticky top-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2">
           <button
             onClick={onBack}
-            className="px-4 py-2 rounded-lg bg-black/50 hover:bg-black/70 text-pink-300 hover:text-pink-200
-              border border-pink-500/30 transition-all duration-300 text-xs sm:text-sm font-semibold min-h-[44px]"
+            className="px-3 py-2 rounded-lg bg-black/50 hover:bg-black/70 text-pink-300 hover:text-pink-200
+              border border-pink-500/30 transition-all duration-300 text-xs sm:text-sm font-semibold min-h-[44px] whitespace-nowrap flex-shrink-0"
           >
             ← Volver
           </button>
-          <div className="text-center">
-            <h2 className="text-xl sm:text-2xl font-bold text-white">Memory Game</h2>
+          <div className="text-center flex-1 min-w-0">
+            <h2 className="text-lg sm:text-2xl font-bold text-white truncate">Memory Game</h2>
             <p className="text-gray-400 text-xs sm:text-sm">Movimientos: {moves}</p>
           </div>
-          <div className="text-sm font-bold text-cyan-300 min-h-[44px] flex items-center">
+          <div className="text-xs sm:text-sm font-bold text-cyan-300 min-h-[44px] flex items-center flex-shrink-0">
             {matched}/{emojis.length}
           </div>
         </div>
       </div>
 
       {/* Game Grid */}
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="grid grid-cols-4 gap-2 sm:gap-4">
+      <div className="max-w-3xl mx-auto px-2 sm:px-6 py-6 sm:py-8">
+        <div className={`grid gap-2 sm:gap-3 ${isSmallScreen ? 'grid-cols-3' : 'grid-cols-4'}`}>
           {cards.map((card) => (
             <motion.button
               key={card.id}
               onClick={() => handleCardClick(card.id)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`aspect-square rounded-lg font-bold text-2xl sm:text-4xl transition-all duration-300
-                border-2 flex items-center justify-center cursor-pointer min-h-[60px] sm:min-h-[80px]
+              className={`aspect-square rounded-lg font-bold transition-all duration-300
+                border-2 flex items-center justify-center cursor-pointer min-h-[50px] sm:min-h-[70px]
+                text-xl sm:text-3xl
                 ${card.matched
                   ? 'bg-green-500/20 border-green-500/50 text-gray-300'
                   : selectedCards.includes(card.id)
@@ -241,55 +251,72 @@ interface FlappyBirdGameProps {
 }
 
 const FlappyBirdGame: React.FC<FlappyBirdGameProps> = ({ onBack }) => {
-  const [birdY, setBirdY] = useState(250);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [gameHeight, setGameHeight] = useState(300);
+  const [gameWidth, setGameWidth] = useState(300);
+  const [birdY, setBirdY] = useState(150);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [obstacles, setObstacles] = useState<Array<{ x: number; passed: boolean }>>([]);
-  const gravity = 6;
-  const jumpPower = -15;
-  const obstacleGap = 120;
+
+  const gravity = 5;
+  const jumpPower = -12;
+
+  useEffect(() => {
+    const updateGameSize = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.clientWidth;
+        const height = Math.min(window.innerHeight - 200, 500);
+        setGameWidth(Math.max(width, 250));
+        setGameHeight(height);
+        setBirdY(height / 2);
+      }
+    };
+
+    updateGameSize();
+    window.addEventListener('resize', updateGameSize);
+    return () => window.removeEventListener('resize', updateGameSize);
+  }, []);
 
   useEffect(() => {
     if (!gameStarted || gameOver) return;
 
     const gameLoop = setInterval(() => {
-      // Apply gravity
       setBirdY(prev => {
         const newY = prev + gravity;
-        if (newY > 500) {
+        if (newY > gameHeight - 30) {
           setGameOver(true);
           return prev;
         }
         return newY;
       });
 
-      // Generate obstacles
       setObstacles(prev => {
-        let updated = prev.map(obs => ({ ...obs, x: obs.x - 7 })).filter(obs => obs.x > -50);
+        let updated = prev.map(obs => ({ ...obs, x: obs.x - 8 })).filter(obs => obs.x > -60);
 
-        if (updated.length === 0 || updated[updated.length - 1].x < 200) {
-          updated.push({ x: 400, passed: false });
+        if (updated.length === 0 || updated[updated.length - 1].x < gameWidth - 150) {
+          updated.push({ x: gameWidth, passed: false });
         }
 
         return updated;
       });
 
-      // Check collisions
       setObstacles(prev => {
-        return prev.map((obs, idx) => {
-          const birdX = 50;
-          const birdSize = 30;
+        return prev.map((obs) => {
+          const birdX = 40;
+          const birdSize = 25;
           
-          // Check if bird passed the obstacle
           if (obs.x < birdX && !obs.passed) {
             setScore(s => s + 1);
             return { ...obs, passed: true };
           }
 
-          // Check collision
           if (birdX + birdSize > obs.x && birdX < obs.x + 50) {
-            if (birdY < 100 || birdY + birdSize > 300) {
+            const topObstacleHeight = gameHeight * 0.35;
+            const gapSize = gameHeight * 0.3;
+            
+            if (birdY < topObstacleHeight || birdY + birdSize > topObstacleHeight + gapSize) {
               setGameOver(true);
             }
           }
@@ -297,48 +324,49 @@ const FlappyBirdGame: React.FC<FlappyBirdGameProps> = ({ onBack }) => {
           return obs;
         });
       });
-    }, 20);
+    }, 30);
 
     return () => clearInterval(gameLoop);
-  }, [gameStarted, gameOver]);
+  }, [gameStarted, gameOver, gameHeight, gameWidth]);
 
-  const handleJump = () => {
+  const handleJump = (e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
     if (!gameStarted) {
       setGameStarted(true);
       setScore(0);
       setGameOver(false);
       setObstacles([]);
-      setBirdY(250);
+      setBirdY(gameHeight / 2);
     } else if (!gameOver) {
-      setBirdY(prev => prev + jumpPower);
+      setBirdY(prev => Math.max(0, prev + jumpPower));
     }
   };
 
   if (gameOver && gameStarted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-blue-900/10 to-black flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-gradient-to-br from-black via-blue-900/10 to-black flex items-center justify-center p-4 z-50 overflow-y-auto">
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="text-center"
+          className="text-center my-auto"
         >
-          <div className="text-6xl mb-4">💥</div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">¡Game Over!</h2>
+          <div className="text-5xl sm:text-6xl mb-4">💥</div>
+          <h2 className="text-2xl sm:text-4xl font-bold text-white mb-2">¡Game Over!</h2>
           <p className="text-gray-400 text-sm sm:text-base mb-6">Puntuación: {score}</p>
           <div className="flex gap-4 justify-center flex-col sm:flex-row">
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-3 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300
-                border border-yellow-500/30 transition-all duration-300 text-sm font-semibold min-h-[44px]"
+              className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300
+                border border-yellow-500/30 transition-all duration-300 text-xs sm:text-sm font-semibold min-h-[44px]"
             >
               Intentar de Nuevo
             </button>
             <button
               onClick={onBack}
-              className="px-6 py-3 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 text-pink-300
-                border border-pink-500/30 transition-all duration-300 text-sm font-semibold min-h-[44px]"
+              className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 text-pink-300
+                border border-pink-500/30 transition-all duration-300 text-xs sm:text-sm font-semibold min-h-[44px]"
             >
-              Volver a Mini Juegos
+              Volver
             </button>
           </div>
         </motion.div>
@@ -347,56 +375,76 @@ const FlappyBirdGame: React.FC<FlappyBirdGameProps> = ({ onBack }) => {
   }
 
   return (
-    <div
-      onClick={handleJump}
-      className="min-h-screen bg-gradient-to-b from-cyan-400/20 to-blue-600/20 flex flex-col items-center justify-center p-4 cursor-pointer"
-    >
+    <div className="min-h-screen bg-gradient-to-b from-cyan-400/20 to-blue-600/20 flex flex-col items-center justify-center p-2 sm:p-4 overflow-y-auto">
       {/* Score Display */}
-      <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-50">
+      <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-50">
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onBack();
-          }}
-          className="px-4 py-2 rounded-lg bg-black/50 hover:bg-black/70 text-pink-300 hover:text-pink-200
+          onClick={onBack}
+          className="px-3 py-2 rounded-lg bg-black/50 hover:bg-black/70 text-pink-300 hover:text-pink-200
             border border-pink-500/30 transition-all duration-300 text-xs sm:text-sm font-semibold min-h-[44px]"
         >
           ← Volver
         </button>
       </div>
 
-      <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-50 text-white font-bold text-lg sm:text-2xl">
-        Score: {score}
+      <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-50 text-white font-bold text-sm sm:text-xl">
+        Puntos: {score}
       </div>
 
       {/* Game Container */}
-      <div className="relative w-full max-w-md h-96 bg-gradient-to-b from-cyan-300/10 to-blue-400/10 border-2 border-white/30 rounded-lg overflow-hidden shadow-2xl">
+      <div
+        ref={containerRef}
+        onClick={handleJump}
+        onTouchStart={handleJump}
+        className="relative w-full max-w-lg bg-gradient-to-b from-cyan-300/10 to-blue-400/10 border-2 border-white/30 rounded-lg overflow-hidden shadow-2xl cursor-pointer mt-12 sm:mt-0"
+        style={{ height: gameHeight }}
+      >
         {/* Bird */}
         <motion.div
           animate={{ y: birdY }}
           transition={{ type: 'tween', duration: 0 }}
-          className="absolute left-12 w-8 h-8 text-2xl z-10"
+          className="absolute left-6 sm:left-10 w-6 sm:w-8 h-6 sm:h-8 text-xl sm:text-2xl z-10 flex items-center justify-center"
         >
           🐦
         </motion.div>
 
-        {/* Obstacles */}
-        {obstacles.map((obs, idx) => (
-          <div key={idx} className="absolute top-0 h-40 w-12 bg-green-500/30 border-2 border-green-500" style={{ left: obs.x }}>
-            <div className="h-full bg-green-500/10" />
-          </div>
-        ))}
-        {obstacles.map((obs, idx) => (
-          <div key={`bottom-${idx}`} className="absolute bottom-0 h-40 w-12 bg-green-500/30 border-2 border-green-500" style={{ left: obs.x }}>
-            <div className="h-full bg-green-500/10" />
-          </div>
-        ))}
+        {/* Top Obstacles */}
+        {obstacles.map((obs, idx) => {
+          const topHeight = gameHeight * 0.35;
+          return (
+            <div
+              key={`top-${idx}`}
+              className="absolute top-0 w-12 sm:w-14 bg-green-500/30 border-2 border-green-500"
+              style={{
+                left: obs.x,
+                height: topHeight,
+              }}
+            />
+          );
+        })}
+
+        {/* Bottom Obstacles */}
+        {obstacles.map((obs, idx) => {
+          const topHeight = gameHeight * 0.35;
+          const gapSize = gameHeight * 0.3;
+          const bottomHeight = gameHeight - topHeight - gapSize;
+          return (
+            <div
+              key={`bottom-${idx}`}
+              className="absolute bottom-0 w-12 sm:w-14 bg-green-500/30 border-2 border-green-500"
+              style={{
+                left: obs.x,
+                height: bottomHeight,
+              }}
+            />
+          );
+        })}
 
         {/* Instructions */}
         {!gameStarted && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50">
             <div className="text-center">
-              <p className="text-white font-bold text-lg sm:text-xl mb-4">Tap para empezar</p>
+              <p className="text-white font-bold text-lg sm:text-xl mb-2">Toca para empezar</p>
               <p className="text-gray-300 text-xs sm:text-sm">Evita los obstáculos</p>
             </div>
           </div>
@@ -404,7 +452,7 @@ const FlappyBirdGame: React.FC<FlappyBirdGameProps> = ({ onBack }) => {
       </div>
 
       {gameStarted && !gameOver && (
-        <p className="text-gray-400 text-xs sm:text-sm mt-4">Toca la pantalla para saltar</p>
+        <p className="text-gray-400 text-xs sm:text-sm mt-4">Toca o haz click para saltar</p>
       )}
     </div>
   );
