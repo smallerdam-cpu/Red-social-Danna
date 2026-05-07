@@ -9,8 +9,8 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
-  const [activeTab, setActiveTab] = useState<'inicio' | 'regalos'>('inicio');
-  const [activeGift, setActiveGift] = useState<'galaxy' | 'mini-games' | null>(null);
+  const [activeTab, setActiveTab] = useState<'inicio' | 'regalos' | 'mini-games'>('inicio');
+  const [activeGift, setActiveGift] = useState<'galaxy' | null>(null);
   const [testDate, setTestDate] = useState<Date | null>(null);
   const [showDevTools, setShowDevTools] = useState(false);
 
@@ -53,14 +53,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
       icon: '✨',
       color: 'from-purple-500 to-pink-500',
       bgColor: 'bg-purple-500/10 hover:bg-purple-500/20'
-    },
-    {
-      id: 'mini-games',
-      title: '🎮 Mini Juegos',
-      description: 'Juegos interactivos divertidos para ti',
-      icon: '🕹️',
-      color: 'from-yellow-500 to-orange-500',
-      bgColor: 'bg-yellow-500/10 hover:bg-yellow-500/20'
     },
     {
       id: 'coming-soon',
@@ -152,11 +144,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
           <div className="flex gap-2 sm:gap-4 overflow-x-auto">
             {[
               { id: 'inicio', label: '🏠 Inicio' },
-              { id: 'regalos', label: '🎁 Tus Regalos' }
+              { id: 'regalos', label: '🎁 Tus Regalos' },
+              { id: 'mini-games', label: '🎮 Mini Juegos' }
             ].map((tab) => (
               <motion.button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as 'inicio' | 'regalos')}
+                onClick={() => setActiveTab(tab.id as 'inicio' | 'regalos' | 'mini-games')}
                 className={`px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold transition-all duration-300 whitespace-nowrap
                   ${activeTab === tab.id
                     ? 'text-pink-300 border-b-2 border-pink-500'
@@ -170,7 +163,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 min-h-[calc(100vh-200px)]">
         <AnimatePresence mode="wait">
           {activeTab === 'inicio' ? (
@@ -224,7 +216,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
                 </motion.div>
               </div>
             </motion.div>
-          ) : (
+          ) : activeTab === 'regalos' ? (
             // Regalos Tab
             <motion.div
               key="regalos"
@@ -245,8 +237,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
                     transition={{ delay: 0.1 * (index + 1) }}
                     onClick={() => {
                       if (gift.disabled) return;
-                      if (gift.id === 'galaxy' || gift.id === 'mini-games') {
-                        setActiveGift(gift.id as 'galaxy' | 'mini-games');
+                      if (gift.id === 'galaxy') {
+                        setActiveGift('galaxy');
                       }
                     }}
                     className={`group cursor-pointer relative overflow-hidden rounded-2xl transition-all duration-300
@@ -292,6 +284,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
                 ))}
               </div>
             </motion.div>
+          ) : (
+            // Mini Games Tab
+            <MiniGamesScreen onBack={() => setActiveTab('mini-games')} />
           )}
         </AnimatePresence>
       </div>

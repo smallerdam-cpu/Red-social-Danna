@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface MiniGamesScreenProps {
   onBack: () => void;
@@ -36,73 +36,65 @@ export const MiniGamesScreen: React.FC<MiniGamesScreenProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-purple-900/10 to-black">
-      {/* Header */}
-      <div className="relative z-10 border-b border-white/10 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex items-center gap-4">
-          <button
-            onClick={onBack}
-            className="px-4 py-2 rounded-lg bg-black/50 hover:bg-black/70 text-pink-300 hover:text-pink-200
-              border border-pink-500/30 transition-all duration-300 text-xs sm:text-sm font-semibold touch-none min-h-[44px] sm:min-h-auto"
+    <motion.div
+      key="mini-games"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+    >
+      <h2 className="text-2xl sm:text-4xl font-bold text-white mb-2">Mis Mini Juegos</h2>
+      <p className="text-gray-400 text-sm sm:text-base mb-8">Diviértete con estos juegos interactivos</p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+        {games.map((game, index) => (
+          <motion.div
+            key={game.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 * (index + 1) }}
+            onClick={() => setActiveGame(game.id as 'memory' | 'flappy')}
+            className="group cursor-pointer relative overflow-hidden rounded-2xl transition-all duration-300
+              hover:shadow-2xl active:scale-95"
           >
-            ← Volver
-          </button>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white flex-1">Mis Mini Juegos</h1>
-        </div>
-      </div>
+            {/* Gradient Border Effect */}
+            <div className={`absolute inset-0 bg-gradient-to-r ${game.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
 
-      {/* Games Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
-          {games.map((game, index) => (
-            <motion.div
-              key={game.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * (index + 1) }}
-              onClick={() => setActiveGame(game.id as 'memory' | 'flappy')}
-              className="group cursor-pointer relative overflow-hidden rounded-2xl transition-all duration-300
-                hover:shadow-2xl active:scale-95"
+            {/* Card */}
+            <div className={`relative backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-white/10 
+              ${game.bgColor} transition-all duration-300 h-full flex flex-col justify-between min-h-[280px]`}
             >
-              {/* Gradient Border Effect */}
-              <div className={`absolute inset-0 bg-gradient-to-r ${game.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-
-              {/* Card */}
-              <div className={`relative backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-white/10 
-                ${game.bgColor} transition-all duration-300 h-full flex flex-col justify-between min-h-[280px]`}
-              >
-                {/* Top - Icon */}
-                <div className="text-5xl sm:text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                  {game.icon}
-                </div>
-
-                {/* Middle - Text */}
-                <div className="flex-1">
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors duration-300">
-                    {game.title}
-                  </h3>
-                  <p className="text-gray-400 text-xs sm:text-sm">{game.description}</p>
-                </div>
-
-                {/* Bottom - CTA */}
-                <div className="flex items-center gap-2 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/10">
-                  <span className="text-xs sm:text-sm font-semibold text-cyan-300 group-hover:text-cyan-200">
-                    Jugar
-                  </span>
-                  <motion.span
-                    className="text-lg"
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    →
-                  </motion.span>
-                </div>
+              {/* Top - Icon */}
+              <div className="text-5xl sm:text-6xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                {game.icon}
               </div>
-            </motion.div>
-          ))}
-        </div>
+
+              {/* Middle - Text */}
+              <div className="flex-1">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors duration-300">
+                  {game.title}
+                </h3>
+                <p className="text-gray-400 text-xs sm:text-sm">{game.description}</p>
+              </div>
+
+              {/* Bottom - CTA */}
+              <div className="flex items-center gap-2 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/10">
+                <span className="text-xs sm:text-sm font-semibold text-cyan-300 group-hover:text-cyan-200">
+                  Jugar
+                </span>
+                <motion.span
+                  className="text-lg"
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  →
+                </motion.span>
+              </div>
+            </div>
+          </motion.div>
+        ))}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -186,7 +178,7 @@ const MemoryGame: React.FC<MemoryGameProps> = ({ onBack }) => {
               className="px-6 py-3 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 text-pink-300
                 border border-pink-500/30 transition-all duration-300 text-sm font-semibold min-h-[44px]"
             >
-              Volver
+              Volver a Mini Juegos
             </button>
           </div>
         </motion.div>
@@ -346,7 +338,7 @@ const FlappyBirdGame: React.FC<FlappyBirdGameProps> = ({ onBack }) => {
               className="px-6 py-3 rounded-lg bg-pink-500/20 hover:bg-pink-500/30 text-pink-300
                 border border-pink-500/30 transition-all duration-300 text-sm font-semibold min-h-[44px]"
             >
-              Volver
+              Volver a Mini Juegos
             </button>
           </div>
         </motion.div>
