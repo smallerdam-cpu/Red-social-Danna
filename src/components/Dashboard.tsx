@@ -200,9 +200,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
               animate={{ opacity: 1, scale: 1 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/50 rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 sm:gap-3 hidden sm:flex cursor-pointer transition-all duration-300"
+              className="bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/50 rounded-xl px-2 sm:px-4 py-1.5 sm:py-3 flex items-center gap-2 sm:gap-3 cursor-pointer transition-all duration-300"
             >
-              <span className="text-xl sm:text-2xl">🏆</span>
+              <span className="text-lg sm:text-2xl">🏆</span>
               <div className="hidden sm:block">
                 <p className="font-bold text-yellow-300 text-xs sm:text-sm">Fuistes la mejor gracias</p>
                 <p className="text-yellow-200 text-xs">En memoria de Mía 💚</p>
