@@ -76,9 +76,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
     setAchievements([]);
     localStorage.removeItem('galaxia_achievements');
     localStorage.removeItem('galaxia_mia_memorial_seen');
-    setShowMiaMemorial(true);
-    alert('Achievements reiniciados. El memorial volverá a aparecer.');
-    setAdminMode(false); // Reset admin mode después del cambio
+    setAdminMode(false);
+    setShowDevTools(false);
+    // Cierra sesión automáticamente para que no vea los cambios
+    setTimeout(() => {
+      handleLogout();
+    }, 500);
   };
 
   const handleAdminPasswordSubmit = () => {
