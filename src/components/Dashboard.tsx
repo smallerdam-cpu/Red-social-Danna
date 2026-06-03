@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { GalaxyScreen } from './GalaxyScreen';
 import { MiniGamesScreen } from './MiniGamesScreen';
 import { MiaMemorial } from './MiaMemorial';
+import { MiaPhotoModal } from './MiaPhotoModal';
 
 interface DashboardProps {
   username: string;
@@ -15,6 +16,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
   const [testDate, setTestDate] = useState<Date | null>(null);
   const [showDevTools, setShowDevTools] = useState(false);
   const [showMiaMemorial, setShowMiaMemorial] = useState(false);
+  const [showMiaPhoto, setShowMiaPhoto] = useState(false);
   const [achievements, setAchievements] = useState<string[]>(() => {
     const saved = localStorage.getItem('galaxia_achievements');
     return saved ? JSON.parse(saved) : [];
@@ -148,6 +150,24 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
               </h1>
             </div>
           </motion.div>
+
+          {/* Achievement Badge */}
+          {achievements.includes('mia_memorial') && (
+            <motion.button
+              onClick={() => setShowMiaPhoto(true)}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/50 rounded-xl px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 sm:gap-3 hidden sm:flex cursor-pointer transition-all duration-300"
+            >
+              <span className="text-xl sm:text-2xl">🏆</span>
+              <div className="hidden sm:block">
+                <p className="font-bold text-yellow-300 text-xs sm:text-sm">Fuistes la mejor gracias</p>
+                <p className="text-yellow-200 text-xs">En memoria de Mía 💚</p>
+              </div>
+            </motion.button>
+          )}
 
           <motion.button
             onClick={onLogout}
@@ -391,6 +411,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
           />
         )}
       </AnimatePresence>
+
+      {/* Mia Photo Modal */}
+      <MiaPhotoModal 
+        isOpen={showMiaPhoto}
+        onClose={() => setShowMiaPhoto(false)}
+        photoUrl="/mia-cat.jpg"
+      />
     </div>
   );
 };
