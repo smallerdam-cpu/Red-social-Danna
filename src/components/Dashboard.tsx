@@ -17,6 +17,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
   const [showDevTools, setShowDevTools] = useState(false);
   const [showMiaMemorial, setShowMiaMemorial] = useState(false);
   const [showMiaPhoto, setShowMiaPhoto] = useState(false);
+  const [adminMode, setAdminMode] = useState(false);
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
   const [achievements, setAchievements] = useState<string[]>(() => {
     const saved = localStorage.getItem('galaxia_achievements');
     return saved ? JSON.parse(saved) : [];
@@ -75,6 +78,32 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
     localStorage.removeItem('galaxia_mia_memorial_seen');
     setShowMiaMemorial(true);
     alert('Achievements reiniciados. El memorial volverá a aparecer.');
+    setAdminMode(false); // Reset admin mode después del cambio
+  };
+
+  const handleAdminPasswordSubmit = () => {
+    if (adminPassword === '17081998') {
+      setAdminMode(true);
+      setShowAdminPassword(false);
+      setAdminPassword('');
+      setShowDevTools(true);
+    } else {
+      alert('Contraseña incorrecta');
+      setAdminPassword('');
+    }
+  };
+
+  const handleAdminLogout = () => {
+    setAdminMode(false);
+    setShowDevTools(false);
+    setAdminPassword('');
+  };
+
+  const handleLogout = () => {
+    setAdminMode(false);
+    setShowDevTools(false);
+    setAdminPassword('');
+    onLogout();
   };
 
   // Regalos disponibles
@@ -178,7 +207,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
           )}
 
           <motion.button
-            onClick={onLogout}
+            onClick={handleLogout}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="w-full sm:w-auto px-4 sm:px-6 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200
@@ -375,7 +404,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
 
       {/* Dev Tools Button - hidden in corner */}
       <button
-        onClick={() => setShowDevTools(!showDevTools)}
+        onClick={() => {
+          if (adminMode) {
+            setShowDevTools(!showDevTools);
+          } else {
+            setShowAdminPassword(true);
+          }
+        }}
         className="fixed bottom-4 right-4 w-8 h-8 rounded-full bg-black/30 hover:bg-black/50 text-white/30 hover:text-white/60 text-xs flex items-center justify-center transition-all z-50 cursor-pointer"
         title="Dev Tools"
       >
@@ -383,38 +418,116 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
       </button>
 
       {/* Dev Tools Panel */}
-      {showDevTools && (
+      {showDevTools && adminMode && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-16 right-4 bg-black/80 backdrop-blur-md border border-pink-500/30 rounded-lg p-4 z-40 min-w-[250px]"
+          className="fixed bottom-16 right-4 bg-gradient-to-b from-black/90 to-purple-950/80 backdrop-blur-md border border-purple-500/50 rounded-lg p-4 z-40 min-w-[280px] shadow-xl"
         >
-          <h4 className="text-pink-300 font-bold text-sm mb-3">Dev Tools</h4>
+          <div className="mb-4 pb-3 border-b border-purple-500/30">
+            <h4 className="text-purple-300 font-bold text-sm mb-1">🔧 Panel de Administrador</h4>
+            <p className="text-purple-200 text-xs">Este apartado es para programadores únicamente</p>
+          </div>
+
           <div className="space-y-3">
             <div>
               <label className="text-gray-400 text-xs block mb-1">Cambiar Fecha (test)</label>
               <input
                 type="date"
                 onChange={(e) => handleSetTestDate(e.target.value)}
-                className="w-full bg-black/50 border border-pink-500/30 rounded px-2 py-1 text-xs text-pink-300"
+                className="w-full bg-black/50 border border-purple-500/30 rounded px-2 py-1 text-xs text-purple-300"
               />
             </div>
             <button
               onClick={() => handleSetTestDate('')}
-              className="w-full px-2 py-1 bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 text-xs rounded transition-all"
+              className="w-full px-2 py-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-xs rounded transition-all"
             >
               Resetear fecha
             </button>
             <button
               onClick={handleResetAchievements}
-              className="w-full px-2 py-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-xs rounded transition-all"
+              className="w-full px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-xs rounded transition-all"
             >
               Resetear Achievements
+            </button>
+            <button
+              onClick={handleAdminLogout}
+              className="w-full px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs rounded transition-all font-semibold"
+            >
+              Cerrar Sesión Admin
             </button>
           </div>
         </motion.div>
       )}
+
+      {/* Admin Password Modal */}
+      <AnimatePresence>
+        {showAdminPassword && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setShowAdminPassword(false);
+                setAdminPassword('');
+              }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
+            >
+              <div className="bg-gradient-to-br from-purple-950 via-black to-black border border-purple-500/50 rounded-lg p-6 shadow-2xl w-[90vw] max-w-sm">
+                <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-2">
+                  🔐 Acceso de Programador
+                </h2>
+                <p className="text-purple-200 text-sm mb-4">
+                  Este apartado es para programadores únicamente
+                </p>
+                
+                <div className="mb-4">
+                  <label className="text-purple-300 text-xs block mb-2">Contraseña:</label>
+                  <input
+                    type="password"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        handleAdminPasswordSubmit();
+                      }
+                    }}
+                    placeholder="Ingresa la contraseña"
+                    className="w-full px-3 py-2 bg-black/50 border border-purple-500/50 rounded-lg text-purple-300 placeholder-purple-500/50 focus:outline-none focus:border-purple-400 text-sm"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleAdminPasswordSubmit}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-semibold rounded-lg transition-all text-sm"
+                  >
+                    Entrar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowAdminPassword(false);
+                      setAdminPassword('');
+                    }}
+                    className="flex-1 px-4 py-2 bg-gray-700/50 hover:bg-gray-700 text-gray-300 font-semibold rounded-lg transition-all text-sm"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Mia Memorial Modal */}
       <AnimatePresence>
