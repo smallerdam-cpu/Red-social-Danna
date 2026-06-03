@@ -69,6 +69,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
     }
   };
 
+  const handleResetAchievements = () => {
+    setAchievements([]);
+    localStorage.removeItem('galaxia_achievements');
+    localStorage.removeItem('galaxia_mia_memorial_seen');
+    setShowMiaMemorial(true);
+    alert('Achievements reiniciados. El memorial volverá a aparecer.');
+  };
+
   // Regalos disponibles
   const gifts = [
     {
@@ -397,6 +405,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
               className="w-full px-2 py-1 bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 text-xs rounded transition-all"
             >
               Resetear fecha
+            </button>
+            <button
+              onClick={handleResetAchievements}
+              className="w-full px-2 py-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-xs rounded transition-all"
+            >
+              Resetear Achievements
             </button>
           </div>
         </motion.div>
