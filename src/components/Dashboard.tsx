@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GalaxyScreen } from './GalaxyScreen';
 import { MiniGamesScreen } from './MiniGamesScreen';
+import { MiaMemorial } from './MiaMemorial';
 
 interface DashboardProps {
   username: string;
@@ -13,6 +14,28 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
   const [activeGift, setActiveGift] = useState<'galaxy' | null>(null);
   const [testDate, setTestDate] = useState<Date | null>(null);
   const [showDevTools, setShowDevTools] = useState(false);
+  const [showMiaMemorial, setShowMiaMemorial] = useState(false);
+  const [achievements, setAchievements] = useState<string[]>(() => {
+    const saved = localStorage.getItem('galaxia_achievements');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Show memorial on first login
+  useEffect(() => {
+    const hasSeenMemorial = localStorage.getItem('galaxia_mia_memorial_seen');
+    if (!hasSeenMemorial) {
+      setShowMiaMemorial(true);
+    }
+  }, []);
+
+  const handleUnlockAchievement = () => {
+    if (!achievements.includes('mia_memorial')) {
+      const newAchievements = [...achievements, 'mia_memorial'];
+      setAchievements(newAchievements);
+      localStorage.setItem('galaxia_achievements', JSON.stringify(newAchievements));
+      localStorage.setItem('galaxia_mia_memorial_seen', 'true');
+    }
+  };
 
   // Check if today is April 9
   const isSpecialDay = () => {
@@ -215,6 +238,37 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
                   </motion.button>
                 </motion.div>
               </div>
+
+              {/* Achievements Section */}
+              {achievements.length > 0 && (
+                <div className="mt-12 pt-8 border-t border-white/10">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">🏆 Logros Desbloqueados</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    {achievements.map((achievement) => {
+                      const achievementData = achievement === 'mia_memorial' && {
+                        title: 'Fuistes la mejor gracias',
+                        description: 'En memoria de Mía 💚',
+                        icon: '🏆',
+                        date: '2 de Junio, 2026'
+                      };
+
+                      return achievementData ? (
+                        <motion.div
+                          key={achievement}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="bg-gradient-to-br from-yellow-500/10 to-amber-500/10 border border-yellow-500/30 rounded-2xl p-6 sm:p-8"
+                        >
+                          <div className="text-4xl sm:text-5xl mb-4">{achievementData.icon}</div>
+                          <h4 className="text-lg sm:text-xl font-bold text-yellow-300 mb-2">{achievementData.title}</h4>
+                          <p className="text-gray-400 text-sm mb-3">{achievementData.description}</p>
+                          <p className="text-yellow-200 text-xs font-semibold">{achievementData.date}</p>
+                        </motion.div>
+                      ) : null;
+                    })}
+                  </div>
+                </div>
+              )}
             </motion.div>
           ) : activeTab === 'regalos' ? (
             // Regalos Tab
@@ -327,6 +381,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
           </div>
         </motion.div>
       )}
+
+      {/* Mia Memorial Modal */}
+      <AnimatePresence>
+        {showMiaMemorial && (
+          <MiaMemorial 
+            onClose={() => setShowMiaMemorial(false)}
+            onUnlockAchievement={handleUnlockAchievement}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
