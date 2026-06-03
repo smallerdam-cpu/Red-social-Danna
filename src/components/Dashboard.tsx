@@ -4,6 +4,7 @@ import { GalaxyScreen } from './GalaxyScreen';
 import { MiniGamesScreen } from './MiniGamesScreen';
 import { MiaMemorial } from './MiaMemorial';
 import { MiaPhotoModal } from './MiaPhotoModal';
+import { MiaChat } from './MiaChat';
 
 interface DashboardProps {
   username: string;
@@ -11,7 +12,7 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
-  const [activeTab, setActiveTab] = useState<'inicio' | 'regalos' | 'mini-games'>('inicio');
+  const [activeTab, setActiveTab] = useState<'inicio' | 'regalos' | 'mini-games' | 'chat'>('inicio');
   const [activeGift, setActiveGift] = useState<'galaxy' | null>(null);
   const [testDate, setTestDate] = useState<Date | null>(null);
   const [showDevTools, setShowDevTools] = useState(false);
@@ -228,11 +229,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
             {[
               { id: 'inicio', label: '🏠 Inicio' },
               { id: 'regalos', label: '🎁 Tus Regalos' },
-              { id: 'mini-games', label: '🎮 Mini Juegos' }
+              { id: 'mini-games', label: '🎮 Mini Juegos' },
+              { id: 'chat', label: '😺 Chat' }
             ].map((tab) => (
               <motion.button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as 'inicio' | 'regalos' | 'mini-games')}
+                onClick={() => setActiveTab(tab.id as 'inicio' | 'regalos' | 'mini-games' | 'chat')}
                 className={`px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold transition-all duration-300 whitespace-nowrap
                   ${activeTab === tab.id
                     ? 'text-pink-300 border-b-2 border-pink-500'
@@ -397,6 +399,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
                   </motion.div>
                 ))}
               </div>
+            </motion.div>
+          ) : activeTab === 'chat' ? (
+            // Chat Tab
+            <motion.div
+              key="chat"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="h-[calc(100vh-200px)]"
+            >
+              <MiaChat />
             </motion.div>
           ) : (
             // Mini Games Tab
