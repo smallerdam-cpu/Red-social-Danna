@@ -376,7 +376,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
       {/* Dev Tools Button - hidden in corner */}
       <button
         onClick={() => setShowDevTools(!showDevTools)}
-        className="fixed bottom-4 right-4 w-8 h-8 rounded-full bg-black/30 hover:bg-black/50 text-white/30 hover:text-white/60 text-xs flex items-center justify-center transition-all"
+        className="fixed bottom-4 right-4 w-8 h-8 rounded-full bg-black/30 hover:bg-black/50 text-white/30 hover:text-white/60 text-xs flex items-center justify-center transition-all z-50 cursor-pointer"
         title="Dev Tools"
       >
         ⚙️
