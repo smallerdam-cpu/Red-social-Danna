@@ -416,7 +416,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
       <MiaPhotoModal 
         isOpen={showMiaPhoto}
         onClose={() => setShowMiaPhoto(false)}
-        photoUrl="/mia-cat.jpg"
+        photoUrl="https://files.catbox.moe/n4vjff.jpg"
       />
     </div>
   );
