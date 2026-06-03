@@ -408,7 +408,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username, onLogout }) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="h-[calc(100vh-200px)]"
+              className="h-[calc(100vh-180px)] sm:h-[calc(100vh-200px)]"
             >
               <MiaChat />
             </motion.div>

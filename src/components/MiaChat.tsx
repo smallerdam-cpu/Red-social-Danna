@@ -122,16 +122,16 @@ export function MiaChat() {
   return (
     <div className="h-full flex flex-col bg-gradient-to-b from-black/50 to-purple-900/10">
       {/* Chat Header */}
-      <div className="bg-gradient-to-r from-pink-950/40 to-purple-950/40 border-b border-pink-500/30 p-4 flex items-center gap-3">
-        <div className="text-3xl">🐱</div>
-        <div>
-          <h3 className="text-pink-300 font-bold">Mía 💚</h3>
-          <p className="text-gray-400 text-xs">En memoria de nuestra gatita</p>
+      <div className="bg-gradient-to-r from-pink-950/40 to-purple-950/40 border-b border-pink-500/30 p-2 sm:p-3 flex items-center gap-2 sm:gap-3">
+        <div className="text-2xl sm:text-3xl">🐱</div>
+        <div className="min-w-0">
+          <h3 className="text-pink-300 font-bold text-sm sm:text-base truncate">Mía 💚</h3>
+          <p className="text-gray-400 text-xs truncate">En memoria de nuestra gatita</p>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-pink-500 scrollbar-track-black/20">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-2 sm:space-y-3 scrollbar-thin scrollbar-thumb-pink-500 scrollbar-track-black/20">
         <AnimatePresence>
           {messages.map((message) => (
             <motion.div
@@ -142,14 +142,14 @@ export function MiaChat() {
               className={`flex ${message.sender === 'mia' ? 'justify-start' : 'justify-end'}`}
             >
               <div
-                className={`max-w-xs px-4 py-2 rounded-lg ${
+                className={`max-w-[70%] sm:max-w-xs px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm ${
                   message.sender === 'mia'
                     ? 'bg-gray-700 text-gray-100 rounded-bl-none'
                     : 'bg-pink-600 text-white rounded-br-none'
                 }`}
               >
-                <p className="text-sm">{message.text}</p>
-                <p className="text-xs mt-1 opacity-70">{message.timestamp}</p>
+                <p>{message.text}</p>
+                <p className="text-xs mt-0.5 sm:mt-1 opacity-70">{message.timestamp}</p>
               </div>
             </motion.div>
           ))}
@@ -158,7 +158,7 @@ export function MiaChat() {
         {/* Typing Indicator */}
         {isTyping && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-            <div className="bg-gray-700 px-4 py-2 rounded-lg rounded-bl-none flex items-center gap-1">
+            <div className="bg-gray-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg rounded-bl-none flex items-center gap-1">
               <motion.span
                 animate={{ y: [0, -4, 0] }}
                 transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
@@ -186,16 +186,16 @@ export function MiaChat() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-black/40 border-t border-pink-500/30 p-4 space-y-2"
+          className="bg-black/40 border-t border-pink-500/30 p-2 sm:p-3 space-y-1.5 sm:space-y-2 max-h-[40%] overflow-y-auto scrollbar-thin scrollbar-thumb-pink-500/50"
         >
-          <p className="text-xs text-gray-400 mb-3">Elige tu respuesta:</p>
+          <p className="text-xs text-gray-400 mb-1.5 sm:mb-2">Elige tu respuesta:</p>
           {currentConversation.options.map((option, idx) => (
             <motion.button
               key={idx}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleOptionClick(option)}
-              className="w-full px-3 py-2 text-sm rounded-lg bg-gradient-to-r from-purple-600/60 to-pink-600/60 hover:from-purple-500/80 hover:to-pink-500/80 text-pink-100 border border-pink-500/50 transition-all text-left"
+              className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg bg-gradient-to-r from-purple-600/60 to-pink-600/60 hover:from-purple-500/80 hover:to-pink-500/80 text-pink-100 border border-pink-500/50 transition-all text-left line-clamp-2"
             >
               💬 {option.text}
             </motion.button>
