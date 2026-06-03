@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
 
 interface MiaPhotoModalProps {
   isOpen: boolean;
@@ -7,6 +8,58 @@ interface MiaPhotoModalProps {
 }
 
 export function MiaPhotoModal({ isOpen, onClose, photoUrl }: MiaPhotoModalProps) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  useEffect(() => {
+    if (!isOpen && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      setCurrentTime(0);
+    }
+  }, [isOpen]);
+
+  const handlePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = parseFloat(e.target.value);
+    if (audioRef.current) {
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    if (!time || isNaN(time)) return '0:00';
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -58,7 +111,7 @@ export function MiaPhotoModal({ isOpen, onClose, photoUrl }: MiaPhotoModalProps)
               </div>
 
               {/* Memorial Text */}
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-2 mb-4">
                 <p className="text-pink-300 font-semibold">En Memoria de Mía 💚</p>
                 <p className="text-gray-400 text-sm">2 de Junio, 2026</p>
                 <p className="text-pink-200 text-xs italic pt-2">
@@ -66,10 +119,50 @@ export function MiaPhotoModal({ isOpen, onClose, photoUrl }: MiaPhotoModalProps)
                 </p>
               </div>
 
+              {/* Audio Player */}
+              <audio
+                ref={audioRef}
+                src="https://files.catbox.moe/txf1si.mp3"
+                loop
+                onLoadedMetadata={handleLoadedMetadata}
+                onTimeUpdate={handleTimeUpdate}
+              />
+
+              <div className="bg-black/40 border border-pink-500/30 rounded-lg p-4 mb-4">
+                {/* Play/Pause Controls */}
+                <div className="flex items-center justify-center gap-3 mb-3">
+                  <button
+                    onClick={handlePlayPause}
+                    className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 flex items-center justify-center text-white font-bold transition-all text-lg"
+                  >
+                    {isPlaying ? '⏸' : '▶'}
+                  </button>
+                  <div className="flex-1 text-center">
+                    <p className="text-pink-300 text-xs font-semibold">Julieta Venegas - A Dónde Va El Viento</p>
+                  </div>
+                </div>
+
+                {/* Time Slider */}
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 0}
+                  value={currentTime}
+                  onChange={handleTimeChange}
+                  className="w-full h-1 bg-purple-900 rounded-lg appearance-none cursor-pointer accent-pink-500"
+                />
+
+                {/* Time Display */}
+                <div className="flex justify-between items-center mt-2 text-xs text-gray-400">
+                  <span>{formatTime(currentTime)}</span>
+                  <span>{formatTime(duration)}</span>
+                </div>
+              </div>
+
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="w-full mt-4 px-4 py-2 bg-gradient-to-r from-pink-500/30 to-purple-500/30 hover:from-pink-500/50 hover:to-purple-500/50 border border-pink-500/50 rounded-lg text-pink-300 font-medium transition-all text-sm"
+                className="w-full px-4 py-2 bg-gradient-to-r from-pink-500/30 to-purple-500/30 hover:from-pink-500/50 hover:to-purple-500/50 border border-pink-500/50 rounded-lg text-pink-300 font-medium transition-all text-sm"
               >
                 Cerrar
               </button>
